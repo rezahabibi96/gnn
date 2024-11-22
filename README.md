@@ -1,0 +1,3 @@
+# Catastrophic Forgetting in GNN for Traffic Forecasting
+
+This repository demonstrates the phenomenon of **catastrophic forgetting** in Graph Neural Networks (GNNs) when applied to **traffic forecasting** dataset or tasks. The experiments explore how GNNs, when trained sequentially on traffic datasets or tasks, forget previously learned information, impacting their ability to generalize to new data.
