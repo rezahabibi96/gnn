@@ -25,3 +25,40 @@ def denorm_z(x_normed, mean, std):
     :return torch.array, denormalized x_normed
     """
     return x_normed*std + mean
+
+
+def calc_mae(y, y_hat):
+    """
+    calc mean absolute error.
+
+    :param y: torch.array, truth value.
+    :param y_hat: torch.array, pred value.
+
+    :return: torch scalar, mae avg on all y_hat.
+    """
+    return torch.mean(torch.abs(y - y_hat))
+
+
+def calc_rmse(y, y_hat):
+    """
+    calc root mean squared error.
+
+    :param y: torch.array, truth value.
+    :param y_hat: torch.array, pred value.
+
+    :return: torch scalar, rmse avg on all y_hat.
+    """
+    return torch.sqrt(torch.mean((y - y_hat) ** 2))
+
+
+def calc_mape(y, y_hat):
+    """
+    calc mean absolute percentage error.
+
+    :param y: torch.array, truth value.
+    :param y_hat: torch.array, pred value.
+
+    :return: torch scala, mape avg on all y_hat.
+    """
+    
+    return torch.mean(torch.abs(y - y_hat) / (y + 1e-15))
