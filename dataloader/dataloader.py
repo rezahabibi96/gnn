@@ -128,3 +128,25 @@ class TrafficDataset(InMemoryDataset):
         # construct the actual dataset from sequence/collection of graph 
         data, slices = self.collate(seqs)
         torch.save((data, slices, n_nodes, mean, std), self.processed_paths[0])
+
+
+def split_data(data, n_slots, ratio):
+    """
+    given data, split it into subsets of train, val, and test.
+
+    :param data: data to split.
+    :param n_slots: possible number of sliding windows in a day.
+    :param ratio: (train, val, test) ratio.
+
+    :return train, val, test: splitted data.
+    """
+    r_train, r_val, _ = ratio
+
+    n_train = n_slots * r_train
+    n_val = n_slots * r_val
+
+    train = data[:n_train]
+    val = data[n_train : n_train + n_val]
+    test = data[n_train + n_val:]
+
+    return train, val, test
