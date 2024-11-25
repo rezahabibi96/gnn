@@ -39,7 +39,7 @@ def dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat=False):
 
 class TrafficDataset(InMemoryDataset):
     """
-    SetUp TrafficDataset for GNN, it extends InMemoryDataset
+    SetUp TrafficDataset for GNN, it extends InMemoryDataset.
     """
     def __init__(self, W, config, root, transform=None, pre_transform=None, pre_filter=None):
         self.W = W
@@ -62,7 +62,7 @@ class TrafficDataset(InMemoryDataset):
         """
         To process the raw dataset into .pt dataset for the later use.
         Please note that any property (self.fields) here would not exist, 
-        if it loads straight from the .pt dataset.
+        If it loads straight from the .pt dataset.
         """
 
         # load and process dataset
