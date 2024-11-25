@@ -13,6 +13,7 @@ from utils.math import *
 # init a tensorboard writer
 writer = SummaryWriter()
 
+
 def train(model, device, dataloader, optimizier, loss_fn, epoch):
     """
     train function.
@@ -41,6 +42,7 @@ def train(model, device, dataloader, optimizier, loss_fn, epoch):
     
     return loss
 
+
 @torch.no_grad
 def eval(model, device, dataloader, type=''):
     """
@@ -62,35 +64,35 @@ def eval(model, device, dataloader, type=''):
     n = 0
 
     # eval model on whole data
-    for i, batch in enumerate(dataloader):
+    for index, batch in enumerate(dataloader):
         batch = batch.to(device)
 
         if batch.x.shape[0] == 1: # skip if batch contains only single data point
             pass
         else:
             with torch.no_grad():
-                pred = model(batch, device)
+                y_pred = model(batch, device) # y_pred value of curr batch
             
-            truth = batch.y.view(pred.shape) # to reshape truth to match pred
+            y_truth = batch.y.view(y_pred.shape) # to reshape y_truth to match y_pred
 
-            if i == 0:
-                # init y_pred tensor to store all preds across batches
-                y_pred = torch.zeros(len(dataloader), pred.shape[0], pred.shape[1])
-                # init y_truth tensor to store all truths across batches
-                y_truth = torch.zeros(len(dataloader), pred.shape[0], pred.shape[1])
+            if index == 0:
+                # init y_preds tensor to store all preds across batches
+                y_preds = torch.zeros(len(dataloader), y_pred.shape[0], y_pred.shape[1])
+                # init y_truths tensor to store all truths across batches
+                y_truths = torch.zeros(len(dataloader), y_pred.shape[0], y_pred.shape[1])
 
-            # denormalize truth and pred of curr batch
-            truth = denorm_z(truth, dataloader.dataset.mean, dataloader.dataset.std_dev)
-            pred = denorm_z(pred, dataloader.dataset.mean, dataloader.dataset.std_dev)
+            # denormalize y_truth and y_pred of curr batch
+            y_truth = denorm_z(y_truth, dataloader.dataset.mean, dataloader.dataset.std_dev)
+            y_pred = denorm_z(y_pred, dataloader.dataset.mean, dataloader.dataset.std_dev)
 
             # store truth and pred of curr batch
-            y_pred[i, :pred.shape[0], :] = pred
-            y_truth[i, :pred.shape[0], :] = truth
+            y_preds[index, :y_pred.shape[0], :] = y_pred
+            y_truths[index, :y_pred.shape[0], :] = y_truth
 
             # calc metrics
-            rmse += calc_rmse(truth, pred)
-            mae += calc_mae(truth, pred)
-            mape += calc_mape(truth, pred)
+            rmse += calc_rmse(y_truth, y_pred)
+            mae += calc_mae(y_truth, y_pred)
+            mape += calc_mape(y_truth, y_pred)
             n += 1
 
     # avgs metrics
