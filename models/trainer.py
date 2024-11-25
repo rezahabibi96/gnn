@@ -142,13 +142,25 @@ def model_train(train_dataloader, val_dataloader, config, device):
             writer.add_scalar(f"MAPE/val", val_mape, epoch)
 
     writer.flush()
-    timestr = time.strftime("%m-%d-%H%M%S")
+    time_str = time.strftime("%m-%d-%H%M%S")
 
     torch.save({
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "loss": loss,
-    }, os.path.join(config['DIR_CHECKPOINT'], f'model_{timestr}'))
+    }, os.path.join(config['DIR_CHECKPOINT'], f'model_{time_str}'))
 
     return model
+
+
+def model_eval(model, test_dataloader, device, config):
+    """
+    test the given model.
+
+    :param model: given model.
+    :param test_dataloader: data loader of test dataset.
+    :param config: configuration to use.
+    :param device: device to use.
+    """
+    pass
