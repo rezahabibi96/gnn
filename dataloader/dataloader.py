@@ -5,6 +5,7 @@ import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 from shutil import copyfile
 
+from main import PARAMS
 from utils.math import *
 
 
@@ -98,14 +99,11 @@ class TrafficDataset(InMemoryDataset):
 
         # to store sequence/collection of graph
         seqs = []
-        window = self.config['N_HIST'] + self.config['N_PRED']
-        
-        # possible number of windows per day
-        N_SLOTS = self.config['N_INTERVALS'] - window + 1
+        window = PARAMS.N_HIST + PARAMS.N_PRED
 
         # construct graph for each window
-        for i in range(self.config['N_DAYS']):
-            for j in range(self.config['N_SLOTS']):
+        for i in range(PARAMS.N_DAYS):
+            for j in range(PARAMS.N_SLOTS):
 
                 g = Data()
                 g.num_nodes = n_nodes
@@ -113,16 +111,16 @@ class TrafficDataset(InMemoryDataset):
                 g.edge_index = edge_index
                 g.edge_attr = edge_attr
 
-                start = i * self.config['N_INTERVALS'] + j
+                start = i * PARAMS.N_INTERVALS + j
                 end = start + window
 
                 # switch from [F, N] (21, 228) -> [N, F] (228, 21)
                 data_window = np.swapaxes(data[start:end, :], 0, 1) 
 
                 # X feature vector for each node
-                g.x = torch.FloatTensor(data_window[:, 0:self.config['N_HIST']])
+                g.x = torch.FloatTensor(data_window[:, 0:PARAMS.N_HIST])
                 # Y ground truth for each node
-                g.y = torch.FloatTensor(data_window[:, self.config['N_HIST']::])
+                g.y = torch.FloatTensor(data_window[:, PARAMS.N_HIST::])
 
                 seqs += [g]
         
