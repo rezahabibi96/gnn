@@ -5,7 +5,7 @@ import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 from shutil import copyfile
 
-from utils import math
+from utils.math import *
 
 
 def dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat=False):
@@ -20,7 +20,7 @@ def dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat=False):
     :return W: weight matrix.
     """
     n = D.shape[0]
-    D = D/1000
+    D = D/1000 # for numerical stability purpose
 
     D2 = D*D
     W_mask = np.ones([n, n]) - np.identity(n)
@@ -69,7 +69,8 @@ class TrafficDataset(InMemoryDataset):
         data = pd.read_csv(self.raw_file_names[0], header=False).values
         mean = np.mean(data)
         std = np.std(data)
-
+        data = norm_z(data, mean, std)
+        
         n_nodes = data.shape[-1]
 
         # create tensor for possible number of edges (n_nodes x n_nodes) 
