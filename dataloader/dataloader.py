@@ -5,7 +5,8 @@ import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 from shutil import copyfile
 
-from main import PARAMS
+from helpers import Config
+from helpers import Log
 from utils.math import *
 
 
@@ -42,11 +43,12 @@ class TrafficDataset(InMemoryDataset):
     """
     SetUp TrafficDataset for GNN, it extends InMemoryDataset.
     """
-    def __init__(self, W, config, root, transform=None, pre_transform=None, pre_filter=None):
+    def __init__(self, W, root='', transform=None, pre_transform=None, pre_filter=None):
         self.W = W
-        self.config = config
         super().__init__(root, transform, pre_transform, pre_filter)
         self.load(self.processed_paths[0])
+        # PyG<2.4
+        # self.data, self.slices = torch.load(self.processed_paths[0])
     
     @property
     def raw_file_names(self):
@@ -67,7 +69,7 @@ class TrafficDataset(InMemoryDataset):
         """
 
         # load and process dataset
-        data = pd.read_csv(self.raw_file_names[0], header=False).values
+        data = pd.read_csv(self.raw_file_names[0], header=None).values
         mean = np.mean(data)
         std = np.std(data)
         data = norm_z(data, mean, std)
@@ -90,7 +92,7 @@ class TrafficDataset(InMemoryDataset):
                     edge_index[1, n_edges] = j
 
                     # fill edge attr with its weight/distance
-                    edge_attr[n_edges, 1] = self.W[i, j]
+                    edge_attr[n_edges] = self.W[i, j]
                     n_edges += 1
         
         # keep only the actual number of edges (n_edges)
@@ -99,11 +101,11 @@ class TrafficDataset(InMemoryDataset):
 
         # to store sequence/collection of graph
         seqs = []
-        window = PARAMS.N_HIST + PARAMS.N_PRED
+        window = Config.PARAMS.N_HIST + Config.PARAMS.N_PRED
 
         # construct graph for each window
-        for i in range(PARAMS.N_DAYS):
-            for j in range(PARAMS.N_SLOTS):
+        for i in range(Config.PARAMS.N_DAYS):
+            for j in range(Config.PARAMS.N_SLOTS):
 
                 g = Data()
                 g.num_nodes = n_nodes
@@ -111,22 +113,26 @@ class TrafficDataset(InMemoryDataset):
                 g.edge_index = edge_index
                 g.edge_attr = edge_attr
 
-                start = i * PARAMS.N_INTERVALS + j
+                start = i * Config.PARAMS.N_INTERVALS + j
                 end = start + window
 
                 # switch from [F, N] (21, 228) -> [N, F] (228, 21)
                 data_window = np.swapaxes(data[start:end, :], 0, 1) 
 
                 # X feature vector for each node
-                g.x = torch.FloatTensor(data_window[:, 0:PARAMS.N_HIST])
+                g.x = torch.FloatTensor(data_window[:, 0:Config.PARAMS.N_HIST])
                 # Y ground truth for each node
-                g.y = torch.FloatTensor(data_window[:, PARAMS.N_HIST::])
+                g.y = torch.FloatTensor(data_window[:, Config.PARAMS.N_HIST::])
 
                 seqs += [g]
         
         # construct the actual dataset from sequence/collection of graph 
-        data, slices = self.collate(seqs)
-        torch.save((data, slices, n_nodes, mean, std), self.processed_paths[0])
+        self.save(seqs, self.processed_paths[0])
+
+        # For PyG<2.4
+        # data, slices = self.collate(seqs)
+        # torch.save((data, slices), self.processed_paths[0])
+        # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
 
 def split_data(data, n_slots, ratio):
