@@ -49,6 +49,7 @@ class TrafficDataset(InMemoryDataset):
         self.load(self.processed_paths[0])
         # PyG<2.4
         # self.data, self.slices = torch.load(self.processed_paths[0])
+        self.mean, self.std_dev = torch.load(self.processed_paths[1])
     
     @property
     def raw_file_names(self):
@@ -56,7 +57,7 @@ class TrafficDataset(InMemoryDataset):
     
     @property
     def processed_file_names(self):
-        return ['./data.pt']
+        return ['./data.pt', './metadata.pt']
     
     def download(self):
         copyfile('./data/PeMSD7_V_228.csv', os.path.join(self.raw_dir, 'PeMSD7_V_228.csv'))
@@ -133,6 +134,8 @@ class TrafficDataset(InMemoryDataset):
         # data, slices = self.collate(seqs)
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
+
+        torch.save((mean, std), self.processed_paths[1])
 
 
 def split_data(data, ratio):
