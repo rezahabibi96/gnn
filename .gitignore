@@ -129,5 +129,8 @@ dmypy.json
 .pyre/
 .idea
 
+# checkpoints
+checkpoints/*
+
 # logs
 logs/*
