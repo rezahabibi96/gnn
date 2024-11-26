@@ -44,7 +44,7 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
 
 
 @torch.no_grad()
-def eval(model, dataloader, type=''):
+def eval(model, dataloader, type):
     """
     eval function.
 
