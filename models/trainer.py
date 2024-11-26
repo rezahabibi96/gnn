@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm import tqdm
 
-from models.model import ST_GAT
+from models.model_st_gat import ST_GAT
 from utils.math import *
 
 
