@@ -1,6 +1,6 @@
 import torch
 
-from models.model import ST_GAT
+from models.model_st_gat import ST_GAT
 
 
 def load_checkpoint(path_checkpoint, config):
