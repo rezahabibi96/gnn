@@ -1,7 +1,8 @@
-env: "developement"
 app: 
  title: "catastrophic forgetting experience in GNN"
  version: "1.0.0"
+
+env: "developement"
 
 model:
  BATCH_SIZE: 50
@@ -11,7 +12,7 @@ model:
  P_WEIGHT_DECAY: 5e-5
  N_HIST: 9
  N_PRED: 12
+ IS_GAT: False
+ N_NODES: 228
  N_DAYS: 44
  N_INTERVALS: 288
- N_NODES: 228
- IS_GAT: True
