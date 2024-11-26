@@ -8,7 +8,7 @@ class ST_GAT(torch.nn.Module):
     Spatio-Temporal Graph Attention Network as presented https://ieeexplore.ieee.org/document/8903252
     """
     def __init__(self, in_channels, out_channels, n_nodes, heads=8, dropout=0):
-        super(ST_GAT).__init__()
+        super(ST_GAT, self).__init__()
         self.n_nodes = n_nodes
         self.heads = heads
         self.dropout = dropout
@@ -61,15 +61,16 @@ class ST_GAT(torch.nn.Module):
         x = torch.movedim(x, 2, 0)
 
         # [12, batch_size, 228] -> [12, batch_size, 32]
-        x = self.lstm1(x)
+        x, _ = self.lstm1(x)
 
         # [12, batch_size, 32] -> [12, batch_size, 128]
-        x = self.lstm2(x)
+        x, _ = self.lstm2(x)
 
         # output contains h_t for each timestep -> only the last one has all input's accounted for
         # [12, batch_size, 128] -> [50, 128]
         x = torch.squeeze(x[-1, :, :])
 
+        # FC layer
         # [batch_size, 128] -> [batch_size, 228*9]
         x = self.linear(x)
 
