@@ -2,10 +2,11 @@ import os
 import time
 import torch
 import torch.optim as optim
-import matplotlib.pyplot as plt
 from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm import tqdm
 
+from helpers import Config
+from helpers import Log
 from models.model_st_gat import ST_GAT
 from utils.math import *
 
@@ -14,14 +15,13 @@ from utils.math import *
 writer = SummaryWriter()
 
 
-def train(model, device, dataloader, optimizier, loss_fn, epoch):
+def train(model, dataloader, optim_fn, loss_fn, epoch):
     """
     train function.
 
     :param model: model.
-    :param device: device.
     :param dataloader: dataloader.
-    :param optimizer: optimizer.
+    :param optim_fn: optim function.
     :param loss_fn: loss function.
     :param epoch: current epoch.
 
@@ -29,34 +29,33 @@ def train(model, device, dataloader, optimizier, loss_fn, epoch):
     """
     model.train()
     for _, batch in enumerate(tqdm(dataloader, desc=f"epoch {epoch}")):
-        batch = batch.to(device)
-        optimizier.zero_grad()
+        batch = batch.to(Config.PARAMS.DEVICE)
+        optim_fn.zero_grad()
 
-        y_pred = torch.squeeze(model(batch, device))
+        y_pred = torch.squeeze(model(batch, Config.PARAMS.DEVICE))
         loss = loss_fn()(y_pred.float(), torch.squeeze(batch.y).float())
 
         loss.backward()
-        optimizier.step()
+        optim_fn.step()
 
         writer.add_scalar("loss/train", loss, epoch)
     
     return loss
 
 
-@torch.no_grad
-def eval(model, device, dataloader, type=''):
+@torch.no_grad()
+def eval(model, dataloader, type=''):
     """
     eval function.
 
     :param model: model.
-    :param device: device.
     :param dataloader: dataloader.
     :param type: type (train/val/test).
 
     :return: eval metrics (rmse, mae, mape) & data tensors (y_pred, y_truth).
     """
     model.eval()
-    model.to(device)
+    model.to(Config.PARAMS.DEVICE)
 
     rmse = 0
     mae = 0
@@ -65,13 +64,13 @@ def eval(model, device, dataloader, type=''):
 
     # eval model on whole data
     for index, batch in enumerate(dataloader):
-        batch = batch.to(device)
+        batch = batch.to(Config.PARAMS.DEVICE)
 
         if batch.x.shape[0] == 1: # skip if batch contains only single data point
             pass
         else:
             with torch.no_grad():
-                y_pred = model(batch, device) # y_pred value of curr batch
+                y_pred = model(batch, Config.PARAMS.DEVICE) # y_pred value of curr batch
             
             y_truth = batch.y.view(y_pred.shape) # to reshape y_truth to match y_pred
 
@@ -98,40 +97,38 @@ def eval(model, device, dataloader, type=''):
     # avgs metrics
     rmse, mae, mape = rmse/n, mae/n, mape/n
 
-    print(f'{type}, RMSE: {rmse}, MAE: {mae}')
+    Log.info(f'{type}, RMSE: {rmse}, MAE: {mae}')
 
     return rmse, mae, mape, y_pred, y_truth
 
 
-def model_train(train_dataloader, val_dataloader, config, device):
+def model_train(train_dataloader, val_dataloader):
     """
     train the given model.
 
     :param train_dataloader: data loader of training dataset.
     :param val_dataloader: data loader of val dataset.
-    :param config: configuration to use.
-    :param device: device to use.
 
     :return model: trained model.
     """
-    model = ST_GAT(in_channels=config['N_HIST'], out_channels=config['N_PRED'],
-                   n_nodes=config['N_NODES'], dropout=config['P_DROPOUT'])
+    model = ST_GAT(in_channels=Config.PARAMS.N_HIST, out_channels=Config.PARAMS.N_PRED,
+                   n_nodes=Config.PARAMS.N_NODES, dropout=Config.PARAMS.DROPOUT)
     
-    optimizer = optim.Adam(model.parameters(), lr=config['P_LR'], 
-                           weight_decay=config['P_WEIGHT_DECAY'])
+    optim_fn = optim.Adam(model.parameters(), lr=Config.PARAMS.LEARNING_RATE, 
+                           weight_decay=Config.PARAMS.WEIGHT_DECAY)
     
     loss_fn = torch.nn.MSELoss
 
-    model.to(device)
+    model.to(Config.PARAMS.DEVICE)
 
     # train model for each epoch
-    for epoch in range(config['N_EPOCHS']):
-        loss = train(model, device, train_dataloader, optimizer, loss_fn, epoch)
-        print(f'loss: {loss:.3f}')
+    for epoch in range(Config.PARAMS.TOTAL_EPOCHS):
+        loss = train(model, train_dataloader, optim_fn, loss_fn, epoch)
+        Log.info(f'loss: {loss:.3f}')
 
         if epoch % 5 == 0:
-            train_rmse, train_mae, train_mape, _, _ = eval(model, device, train_dataloader, 'train')
-            val_rmse, val_mae, val_mape, _, _ = eval(model, device, val_dataloader, 'val')
+            train_rmse, train_mae, train_mape, _, _ = eval(model, train_dataloader, 'train')
+            val_rmse, val_mae, val_mape, _, _ = eval(model, val_dataloader, 'val')
 
             writer.add_scalar(f"RMSE/train", train_rmse, epoch)
             writer.add_scalar(f"MAE/train", train_mae, epoch)
@@ -147,20 +144,18 @@ def model_train(train_dataloader, val_dataloader, config, device):
     torch.save({
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
+        "optimizer_state_dict": optim_fn.state_dict(),
         "loss": loss,
-    }, os.path.join(config['DIR_CHECKPOINT'], f'model_{time_str}'))
+    }, os.path.join(Config.PARAMS.CHECKPOINT, f'model_{time_str}'))
 
     return model
 
 
-def model_eval(model, test_dataloader, device, config):
+def model_eval(model, test_dataloader):
     """
     test the given model.
 
     :param model: given model.
     :param test_dataloader: data loader of test dataset.
-    :param config: configuration to use.
-    :param device: device to use.
     """
     pass
