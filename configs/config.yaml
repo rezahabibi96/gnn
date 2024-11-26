@@ -10,13 +10,16 @@ MODEL:
  LEARNING_RATE: 3e-4
  DROPOUT: 0.2
  WEIGHT_DECAY: 5e-5
- IS_GAT: False
+ IS_GAT: True
  N_HIST: 9
  N_PRED: 12
 
 DIR:
  CHECKPOINT: "./checkpoints"
  LOG: "./logs"
+
+CUDA:
+ DEVICE: "cuda"
 
 DATA:
  PEMSD7:
