@@ -135,7 +135,7 @@ class TrafficDataset(InMemoryDataset):
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
 
-def split_data(data, n_slots, ratio):
+def split_data(data, ratio):
     """
     given data, split it into subsets of train, val, and test.
 
@@ -147,8 +147,8 @@ def split_data(data, n_slots, ratio):
     """
     r_train, r_val, _ = ratio
 
-    n_train = n_slots * r_train
-    n_val = n_slots * r_val
+    n_train = Config.PARAMS.N_SLOTS * r_train
+    n_val = Config.PARAMS.N_SLOTS * r_val
 
     train = data[:n_train]
     val = data[n_train : n_train + n_val]
