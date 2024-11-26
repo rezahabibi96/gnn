@@ -25,6 +25,9 @@ class ConfigModel(BaseModel):
     CHECKPOINT: str = None
     LOG: str = None
 
+    # CUDA
+    DEVICE: str = None
+
     # DATA -> PEMSD7
     N_NODES: int = None
     N_DAYS: int = None
@@ -61,6 +64,8 @@ class Config:
 
             CHECKPOINT=cls.__config_yaml__['DIR']['CHECKPOINT'],
             LOG=cls.__config_yaml__['DIR']['LOG'],
+
+            DEVICE=cls.__config_yaml__['CUDA']['DEVICE'],
 
             N_NODES=cls.__config_yaml__['DATA']['PEMSD7']['N_NODES'],
             N_DAYS=cls.__config_yaml__['DATA']['PEMSD7']['N_DAYS'],
@@ -102,6 +107,10 @@ class Config:
                                help="checkpoint directory")
         dir_group.add_argument('--LOG', type=str, default=cls.PARAMS.LOG, 
                                help="log directory")
+        
+        cuda_group = parser.add_argument_group("CUDA", "cuda-related parameters")
+        cuda_group.add_argument('--DEVICE', type=str, default=cls.PARAMS.DEVICE, 
+                               help="device type")
         
         data_group = parser.add_argument_group("DATA", "data-related parameters")
         data_group.add_argument('--N_NODES', type=int, default=cls.PARAMS.N_NODES,
