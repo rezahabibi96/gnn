@@ -1,18 +1,26 @@
-app: 
- title: "catastrophic forgetting experience in GNN"
- version: "1.0.0"
+APP: 
+ TITLE: "catastrophic forgetting experience in GNN"
+ VERSION: "1.0.0"
 
-env: "developement"
+ENV: "development"
 
-model:
+MODEL:
  BATCH_SIZE: 50
- N_EPOCHS: 200
- P_LR: 3e-4
- P_DROPOUT: 0.2
- P_WEIGHT_DECAY: 5e-5
+ TOTAL_EPOCHS: 200
+ LEARNING_RATE: 3e-4
+ DROPOUT: 0.2
+ WEIGHT_DECAY: 5e-5
+ IS_GAT: False
  N_HIST: 9
  N_PRED: 12
- IS_GAT: False
- N_NODES: 228
- N_DAYS: 44
- N_INTERVALS: 288
+
+DIR:
+ CHECKPOINT: "./checkpoints"
+ LOG: "./logs"
+
+DATA:
+ PEMSD7:
+  N_NODES: 228
+  N_DAYS: 44
+  N_INTERVALS: 288
+  N_SLOTS: None
