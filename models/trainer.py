@@ -1,5 +1,3 @@
-import os
-import time
 import torch
 from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm import tqdm
@@ -7,6 +5,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from helpers import Config
 from helpers import Log
+from models.tools import save_checkpoint
 from utils.math import *
 
 
@@ -29,7 +28,7 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
     model.train()
 
     with logging_redirect_tqdm(loggers=[Log.log]):
-        for _, batch in enumerate(_ := tqdm(desc=Log.info(f'(train) EPOCH: {epoch}'), iterable=dataloader)):
+        for _, batch in enumerate(_ := tqdm(desc=f'(train) EPOCH: {epoch}', iterable=dataloader)):
             batch = batch.to(Config.PARAMS.CUDA['DEVICE'])
             optim_fn.zero_grad()
 
@@ -38,8 +37,6 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
 
             loss.backward()
             optim_fn.step()
-
-            writer.add_scalar("LOSS/train", loss, epoch)
         
         return loss
 
@@ -109,17 +106,18 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
     :param val_dataloader: data loader of val dataset.
     :param optim_fn: optim function.
     :param loss_fn: loss function.
-
-    :return model: trained model.
     """
     model.to(Config.PARAMS.CUDA['DEVICE'])
 
     # train model for each epoch
     for epoch in range(Config.PARAMS.HYPER['TOTAL_EPOCHS']):
         loss = train(model, train_dataloader, optim_fn, loss_fn, epoch)
-        Log.info(f'(train) LOSS: {loss:.4f}')
+        writer.add_scalar("LOSS/train", loss, epoch)
 
         if epoch % 10 == 0:
+            Log.info(f'EPOCH: {epoch}')
+            Log.info(f'(train) LOSS: {loss:.4f}')
+
             train_rmse, train_mae, train_mape, _, _ = eval(model, train_dataloader)
             Log.info(f'(train) RMSE: {train_rmse:.4f}, MAE: {train_mae:.4f}, MAPE: {train_mape:.4f}')
 
@@ -135,16 +133,7 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
             writer.add_scalar(f"MAPE/val", val_mape, epoch)
 
     writer.flush()
-    time_str = time.strftime("%m-%d-%H%M%S")
-
-    torch.save({
-        "epoch": epoch,
-        "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optim_fn.state_dict(),
-        "loss": loss,
-    }, os.path.join(Config.PARAMS.DIR['CHECKPOINTS'], f'model_{time_str}'))
-
-    return model
+    save_checkpoint(epoch, model, optim_fn, loss)
 
 
 def model_eval(model, test_dataloader):
@@ -154,4 +143,13 @@ def model_eval(model, test_dataloader):
     :param model: given model.
     :param test_dataloader: data loader of test dataset.
     """
+    test_rmse, test_mae, test_mape, y_preds, y_truths = eval(model, test_dataloader)
+    Log.info(f'(test) RMSE: {test_rmse:.4f}, MAE: {test_mae:.4f}, MAPE: {test_mape:.4f}')
+
+    writer.add_scalar(f"RMSE/test", test_rmse, 0)
+    writer.add_scalar(f"MAE/test", test_mae, 0)
+    writer.add_scalar(f"MAPE/test", test_mape, 0)
+
+
+def model_predict():
     pass
