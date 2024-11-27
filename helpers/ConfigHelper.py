@@ -71,8 +71,6 @@ class Config:
 
         if use_cli:
             cls.parse_cli()
-        
-        Log.info(f"final configuration \n {cls.PARAMS}")
 
 
 Config.load()
