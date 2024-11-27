@@ -45,6 +45,8 @@ class TrafficDataset(InMemoryDataset):
     """
     def __init__(self, W, root='', transform=None, pre_transform=None, pre_filter=None):
         self.W = W
+        self.supported = ['PEMSD7',]
+        self.ACTIVE_DATA = Config.PARAMS.ACTIVE_DATA
         super().__init__(root, transform, pre_transform, pre_filter)
         self.load(self.processed_paths[0])
         # PyG<2.4
@@ -52,15 +54,24 @@ class TrafficDataset(InMemoryDataset):
         self.mean, self.std_dev = torch.load(self.processed_paths[1])
     
     @property
+    def raw_dir(self):
+        return Config.PARAMS.DATA[self.ACTIVE_DATA]['RAW_DIR']
+
+    @property
     def raw_file_names(self):
-        return [os.path.join(self.raw_dir, 'PeMSD7_V_228.csv')]
+        return [os.path.join(self.raw_dir, Config.PARAMS.DATA[self.ACTIVE_DATA]['V'])]
     
+    @property
+    def processed_dir(self):
+        return Config.PARAMS.DATA[self.ACTIVE_DATA]['PROCESSED_DIR']
+
     @property
     def processed_file_names(self):
         return ['./data.pt', './metadata.pt']
     
     def download(self):
-        copyfile('./data/PeMSD7_V_228.csv', os.path.join(self.raw_dir, 'PeMSD7_V_228.csv'))
+        # copyfile('', '')
+        pass
     
     def process(self):
         """
@@ -102,11 +113,11 @@ class TrafficDataset(InMemoryDataset):
 
         # to store sequence/collection of graph
         seqs = []
-        window = Config.PARAMS.N_HIST + Config.PARAMS.N_PRED
+        window = Config.PARAMS.HYPER['N_HIST'] + Config.PARAMS.HYPER['N_PRED']
 
         # construct graph for each window
-        for i in range(Config.PARAMS.N_DAYS):
-            for j in range(Config.PARAMS.N_SLOTS):
+        for i in range(Config.PARAMS.DATA[self.ACTIVE_DATA]['N_DAYS']):
+            for j in range(Config.PARAMS.DATA[self.ACTIVE_DATA]['N_SLOTS']):
 
                 g = Data()
                 g.num_nodes = n_nodes
@@ -114,16 +125,16 @@ class TrafficDataset(InMemoryDataset):
                 g.edge_index = edge_index
                 g.edge_attr = edge_attr
 
-                start = i * Config.PARAMS.N_INTERVALS + j
+                start = i * Config.PARAMS.DATA[self.ACTIVE_DATA]['N_INTERVALS'] + j
                 end = start + window
 
                 # switch from [F, N] (21, 228) -> [N, F] (228, 21)
                 data_window = np.swapaxes(data[start:end, :], 0, 1) 
 
                 # X feature vector for each node
-                g.x = torch.FloatTensor(data_window[:, 0:Config.PARAMS.N_HIST])
+                g.x = torch.FloatTensor(data_window[:, 0:Config.PARAMS.HYPER['N_HIST']])
                 # Y ground truth for each node
-                g.y = torch.FloatTensor(data_window[:, Config.PARAMS.N_HIST::])
+                g.y = torch.FloatTensor(data_window[:, Config.PARAMS.HYPER['N_HIST']::])
 
                 seqs += [g]
         
@@ -135,7 +146,8 @@ class TrafficDataset(InMemoryDataset):
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
-        torch.save((mean, std), self.processed_paths[1])
+        names, nodes = 'PEMSD7', 228
+        torch.save((mean, std, names, nodes), self.processed_paths[1])
 
 
 def split_data(data, ratio):
@@ -150,8 +162,8 @@ def split_data(data, ratio):
     """
     r_train, r_val, _ = ratio
 
-    n_train = Config.PARAMS.N_SLOTS * r_train
-    n_val = Config.PARAMS.N_SLOTS * r_val
+    n_train = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_SLOTS'] * r_train
+    n_val = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_SLOTS'] * r_val
 
     train = data[:n_train]
     val = data[n_train : n_train + n_val]
