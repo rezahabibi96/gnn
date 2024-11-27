@@ -1,13 +1,12 @@
 import os
 import time
 import torch
-import torch.optim as optim
 from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from helpers import Config
 from helpers import Log
-from models.model_st_gat import ST_GAT
 from utils.math import *
 
 
@@ -19,8 +18,8 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
     """
     train function.
 
-    :param model: model.
-    :param dataloader: dataloader.
+    :param model: given model.
+    :param dataloader: current dataloader.
     :param optim_fn: optim function.
     :param loss_fn: loss function.
     :param epoch: current epoch.
@@ -28,31 +27,32 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
     :return loss: current loss.
     """
     model.train()
-    for _, batch in enumerate(tqdm(dataloader, desc=f"epoch {epoch}")):
-        batch = batch.to(Config.PARAMS.CUDA['DEVICE'])
-        optim_fn.zero_grad()
 
-        y_pred = torch.squeeze(model(batch))
-        loss = loss_fn()(y_pred.float(), torch.squeeze(batch.y).float())
+    with logging_redirect_tqdm(loggers=[Log.log]):
+        for _, batch in enumerate(_ := tqdm(desc=Log.info(f'(train) EPOCH: {epoch}'), iterable=dataloader)):
+            batch = batch.to(Config.PARAMS.CUDA['DEVICE'])
+            optim_fn.zero_grad()
 
-        loss.backward()
-        optim_fn.step()
+            y_pred = torch.squeeze(model(batch))
+            loss = loss_fn()(y_pred.float(), torch.squeeze(batch.y).float())
 
-        writer.add_scalar("loss/train", loss, epoch)
-    
-    return loss
+            loss.backward()
+            optim_fn.step()
+
+            writer.add_scalar("LOSS/train", loss, epoch)
+        
+        return loss
 
 
 @torch.no_grad()
-def eval(model, dataloader, type):
+def eval(model, dataloader):
     """
     eval function.
 
-    :param model: model.
-    :param dataloader: dataloader.
-    :param type: type (train/val/test).
+    :param model: given model.
+    :param dataloader: given dataloader.
 
-    :return: eval metrics (rmse, mae, mape) & data tensors (y_pred, y_truth).
+    :return: eval metrics (rmse, mae, mape) & data tensors (y_preds, y_truths).
     """
     model.eval()
     model.to(Config.PARAMS.CUDA['DEVICE'])
@@ -97,39 +97,34 @@ def eval(model, dataloader, type):
     # avgs metrics
     rmse, mae, mape = rmse/n, mae/n, mape/n
 
-    Log.info(f'{type}, RMSE: {rmse}, MAE: {mae}')
-
-    return rmse, mae, mape, y_pred, y_truth
+    return rmse, mae, mape, y_preds, y_truths
 
 
-def model_train(train_dataloader, val_dataloader):
+def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
     """
     train the given model.
 
+    :param model: given model.
     :param train_dataloader: data loader of training dataset.
     :param val_dataloader: data loader of val dataset.
+    :param optim_fn: optim function.
+    :param loss_fn: loss function.
 
     :return model: trained model.
     """
-    model = ST_GAT(in_channels=Config.PARAMS.HYPER['N_HIST'], out_channels=Config.PARAMS.HYPER['N_PRED'],
-                   n_nodes=Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES'], 
-                   dropout=Config.PARAMS.HYPER['DROPOUT'])
-    
-    optim_fn = optim.Adam(model.parameters(), lr=Config.PARAMS.HYPER['LEARNING_RATE'], 
-                           weight_decay=Config.PARAMS.HYPER['WEIGHT_DECAY'])
-    
-    loss_fn = torch.nn.MSELoss
-
     model.to(Config.PARAMS.CUDA['DEVICE'])
 
     # train model for each epoch
     for epoch in range(Config.PARAMS.HYPER['TOTAL_EPOCHS']):
         loss = train(model, train_dataloader, optim_fn, loss_fn, epoch)
-        Log.info(f'loss: {loss:.3f}')
+        Log.info(f'(train) LOSS: {loss:.4f}')
 
-        if epoch % 5 == 0:
-            train_rmse, train_mae, train_mape, _, _ = eval(model, train_dataloader, 'train')
-            val_rmse, val_mae, val_mape, _, _ = eval(model, val_dataloader, 'val')
+        if epoch % 10 == 0:
+            train_rmse, train_mae, train_mape, _, _ = eval(model, train_dataloader)
+            Log.info(f'(train) RMSE: {train_rmse:.4f}, MAE: {train_mae:.4f}, MAPE: {train_mape:.4f}')
+
+            val_rmse, val_mae, val_mape, _, _ = eval(model, val_dataloader)
+            Log.info(f'(val) RMSE: {val_rmse:.4f}, MAE: {val_mae:.4f}, MAPE: {val_mape:.4f}')
 
             writer.add_scalar(f"RMSE/train", train_rmse, epoch)
             writer.add_scalar(f"MAE/train", train_mae, epoch)
