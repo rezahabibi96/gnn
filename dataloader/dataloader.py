@@ -43,15 +43,14 @@ class TrafficDataset(InMemoryDataset):
     """
     SetUp TrafficDataset for GNN, it extends InMemoryDataset.
     """
-    def __init__(self, W, root='', transform=None, pre_transform=None, pre_filter=None):
-        self.W = W
+    def __init__(self, root='', transform=None, pre_transform=None, pre_filter=None):
         self.supported = ['PEMSD7',]
         self.ACTIVE_DATA = Config.PARAMS.ACTIVE_DATA
         super().__init__(root, transform, pre_transform, pre_filter)
         self.load(self.processed_paths[0])
         # PyG<2.4
         # self.data, self.slices = torch.load(self.processed_paths[0])
-        self.mean, self.std_dev = torch.load(self.processed_paths[1])
+        self.mean, self.std_dev, _, _ = torch.load(self.processed_paths[1])
     
     @property
     def raw_dir(self):
@@ -59,7 +58,8 @@ class TrafficDataset(InMemoryDataset):
 
     @property
     def raw_file_names(self):
-        return [os.path.join(self.raw_dir, Config.PARAMS.DATA[self.ACTIVE_DATA]['V'])]
+        return [os.path.join(self.raw_dir, Config.PARAMS.DATA[self.ACTIVE_DATA]['W']),
+                os.path.join(self.raw_dir, Config.PARAMS.DATA[self.ACTIVE_DATA]['V'])]
     
     @property
     def processed_dir(self):
@@ -80,8 +80,12 @@ class TrafficDataset(InMemoryDataset):
         If it loads straight from the .pt dataset.
         """
 
+        # calc W given D
+        D = pd.read_csv(self.raw_file_names[0], header=None).values
+        W = dist_to_weight(D)
+
         # load and process dataset
-        data = pd.read_csv(self.raw_file_names[0], header=None).values
+        data = pd.read_csv(self.raw_file_names[1], header=None).values
         mean = np.mean(data)
         std = np.std(data)
         data = norm_z(data, mean, std)
@@ -97,14 +101,14 @@ class TrafficDataset(InMemoryDataset):
             for j in range(n_nodes):
 
                 # if weight/distance of node i and node j != 0
-                if self.W[i, j] != 0.:
+                if W[i, j] != 0.:
 
                     # create edge index between node i and node j
                     edge_index[0, n_edges] = i
                     edge_index[1, n_edges] = j
 
                     # fill edge attr with its weight/distance
-                    edge_attr[n_edges] = self.W[i, j]
+                    edge_attr[n_edges] = W[i, j]
                     n_edges += 1
         
         # keep only the actual number of edges (n_edges)
@@ -146,8 +150,10 @@ class TrafficDataset(InMemoryDataset):
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
-        names, nodes = 'PEMSD7', 228
-        torch.save((mean, std, names, nodes), self.processed_paths[1])
+        nodes = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES']
+        names = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NAMES']
+        
+        torch.save((mean, std, nodes, names), self.processed_paths[1])
 
 
 def split_data(data, ratio):
