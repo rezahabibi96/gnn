@@ -54,7 +54,7 @@ class TrafficDataset(InMemoryDataset):
 
         # calc W given D
         D = pd.read_csv(self.raw_file_names[0], header=None).values
-        W = from_dist_to_weight(D)
+        W = from_dist_to_weight(D, Config.PARAMS.HYPER['GAT_MODE'])
 
         # load and process dataset
         data = pd.read_csv(self.raw_file_names[1], header=None).values
