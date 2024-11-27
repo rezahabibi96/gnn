@@ -26,7 +26,7 @@ def split_data(data, ratio):
     return train, val, test
 
 
-def from_dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat=False):
+def from_dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat_mode=False):
     """
     given D, distance matrix between all nodes, convert it into weight matrix W.
 
@@ -48,7 +48,7 @@ def from_dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat=False):
     W = W_temp * (W_temp >= epsilon)*W_mask
 
     # if using gat, round to 0/1 and include self-loop.
-    if gat:
+    if gat_mode:
         W[W>0] = 1
         W += np.identity(n)
     
