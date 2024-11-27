@@ -55,7 +55,7 @@ class Config:
         
         active_group = parser.add_argument_group("ACTIVE", "active-related") 
         
-        active_group.add_argument('--ACTIVE_ENVIRONTMENT', '-ae', type=str, default=cls.PARAMS.ACTIVE_ENV,
+        active_group.add_argument('--ACTIVE_ENVIRONTMENT', '-ae', type=str, default=cls.PARAMS.ACTIVE_ENVIRONTMENT,
                                help="select environtment (e.g., development, production)")
         active_group.add_argument('--ACTIVE_DATA', '-ad', type=str, default=cls.PARAMS.ACTIVE_DATA,
                                help="select data (e.g., PEMSD7, PEMSD8)")
