@@ -2,21 +2,9 @@ APP:
  TITLE: "catastrophic forgetting experience in GNN"
  VERSION: "1.0.0"
 
-ENV: "development"
+ACTIVE_ENVIRONTMENT: "development"
 
-MODEL:
- BATCH_SIZE: 50
- TOTAL_EPOCHS: 200
- LEARNING_RATE: 3e-4
- DROPOUT: 0.2
- WEIGHT_DECAY: 5e-5
- IS_GAT: True
- N_HIST: 9
- N_PRED: 12
-
-DIR:
- CHECKPOINT: "./checkpoints"
- LOG: "./logs"
+ACTIVE_DATA: "PEMSD7"
 
 CUDA:
  DEVICE: "cuda"
@@ -26,4 +14,28 @@ DATA:
   N_NODES: 228
   N_DAYS: 44
   N_INTERVALS: 288
-  N_SLOTS: None
+  N_SLOTS: null
+  N_NAMES: PEMSD7
+  RAW_DIR: './data/PEMSD7'
+  PROCESSED_DIR: './artifacts/processed/PEMSD7'
+  V: 'PeMSD7_V_228.csv'
+  W: 'PeMSD7_W_228.csv'
+
+DIR:
+ ARTIFACTS: "./artifacts"
+ CHECKPOINTS: "./artifacts/checkpoints" 
+ LOGS: "./artifacts/logs"
+ PROCESSED: "./artifacts/processed"
+ TENSORBOARD: "./artifacts/tensorboard"
+
+MODEL:
+ HYPER:
+  BATCH_SIZE: 50
+  TOTAL_EPOCHS: 200
+  LEARNING_RATE: 0.0003
+  DROPOUT: 0.2
+  WEIGHT_DECAY: 0.00005
+  N_HIST: 9
+  N_PRED: 12
+ ST_GAT:
+  IS_GAT: True
