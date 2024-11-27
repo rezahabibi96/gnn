@@ -46,7 +46,8 @@ class ST_GAT(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
-        x = torch.tensor(x, dtype=torch.float32, device=Config.PARAMS.CUDA['DEVICE'])
+        x = x.clone().detach().requires_grad_(True)
+        # x = x.clone().detach().to(dtype=torch.float32, device=Config.PARAMS.CUDA['DEVICE']).requires_grad_(True)
 
         # GAT layer
         x = self.gat(x, edge_index)
