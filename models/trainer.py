@@ -78,8 +78,8 @@ def eval(model, dataloader):
                 y_truths = torch.zeros(len(dataloader), y_pred.shape[0], y_pred.shape[1])
 
             # denormalize y_truth and y_pred of curr batch
-            y_truth = denorm_z(y_truth, dataloader.dataset.mean, dataloader.dataset.std_dev)
-            y_pred = denorm_z(y_pred, dataloader.dataset.mean, dataloader.dataset.std_dev)
+            y_truth = denorm_z(y_truth, dataloader.dataset.mean, dataloader.dataset.std)
+            y_pred = denorm_z(y_pred, dataloader.dataset.mean, dataloader.dataset.std)
 
             # store truth and pred of curr batch
             y_preds[index, :y_pred.shape[0], :] = y_pred
