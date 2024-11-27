@@ -2,6 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv
 
+from helpers import Config
+from helpers import Log
+
 
 class ST_GAT(torch.nn.Module):
     """
@@ -10,9 +13,10 @@ class ST_GAT(torch.nn.Module):
     def __init__(self, in_channels, out_channels, n_nodes, heads=8, dropout=0):
         super(ST_GAT, self).__init__()
         self.n_nodes = n_nodes
+        self.n_hist = in_channels
+        self.n_pred = out_channels
         self.heads = heads
         self.dropout = dropout
-        self.n_preds = out_channels
 
         lstm1_hidden_size = 32
         lstm2_hidden_size = 128
@@ -37,14 +41,12 @@ class ST_GAT(torch.nn.Module):
                 torch.nn.init.xavier_uniform_(param)
         
         # FC layer
-        self.linear = torch.nn.Linear(lstm2_hidden_size, self.n_nodes*self.n_preds)
+        self.linear = torch.nn.Linear(lstm2_hidden_size, self.n_nodes*self.n_pred)
         torch.nn.init.xavier_uniform_(self.linear.weight)
 
-    def forward(self, data, device):
+    def forward(self, data):
         x, edge_index = data.x, data.edge_index
-
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        x = torch.tensor(x, dtype=torch.float32, device=device)
+        x = torch.tensor(x, dtype=torch.float32, device=Config.PARAMS.CUDA['DEVICE'])
 
         # GAT layer
         x = self.gat(x, edge_index)
@@ -77,9 +79,9 @@ class ST_GAT(torch.nn.Module):
         x_s = x.shape
 
         # [batch_size, 228*9] -> [batch_size, 228, 9]
-        x = torch.reshape(x, (x_s[0], self.n_nodes, self.n_preds))
+        x = torch.reshape(x, (x_s[0], self.n_nodes, self.n_pred))
 
         # [batch_size, 228, 9] -> [batch_size*self]
-        x = torch.reshape(x, (x_s[0]*self.n_nodes, self.n_preds))
+        x = torch.reshape(x, (x_s[0]*self.n_nodes, self.n_pred))
 
         return x
