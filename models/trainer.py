@@ -12,7 +12,7 @@ from utils.math import *
 
 
 # init a tensorboard writer
-writer = SummaryWriter()
+writer = SummaryWriter(log_dir=Config.PARAMS.DIR['TENSORBOARD'])
 
 
 def train(model, dataloader, optim_fn, loss_fn, epoch):
@@ -29,10 +29,10 @@ def train(model, dataloader, optim_fn, loss_fn, epoch):
     """
     model.train()
     for _, batch in enumerate(tqdm(dataloader, desc=f"epoch {epoch}")):
-        batch = batch.to(Config.PARAMS.DEVICE)
+        batch = batch.to(Config.PARAMS.CUDA['DEVICE'])
         optim_fn.zero_grad()
 
-        y_pred = torch.squeeze(model(batch, Config.PARAMS.DEVICE))
+        y_pred = torch.squeeze(model(batch))
         loss = loss_fn()(y_pred.float(), torch.squeeze(batch.y).float())
 
         loss.backward()
@@ -55,7 +55,7 @@ def eval(model, dataloader, type):
     :return: eval metrics (rmse, mae, mape) & data tensors (y_pred, y_truth).
     """
     model.eval()
-    model.to(Config.PARAMS.DEVICE)
+    model.to(Config.PARAMS.CUDA['DEVICE'])
 
     rmse = 0
     mae = 0
@@ -64,13 +64,13 @@ def eval(model, dataloader, type):
 
     # eval model on whole data
     for index, batch in enumerate(dataloader):
-        batch = batch.to(Config.PARAMS.DEVICE)
+        batch = batch.to(Config.PARAMS.CUDA['DEVICE'])
 
         if batch.x.shape[0] == 1: # skip if batch contains only single data point
             pass
         else:
             with torch.no_grad():
-                y_pred = model(batch, Config.PARAMS.DEVICE) # y_pred value of curr batch
+                y_pred = model(batch) # y_pred value of curr batch
             
             y_truth = batch.y.view(y_pred.shape) # to reshape y_truth to match y_pred
 
@@ -111,18 +111,19 @@ def model_train(train_dataloader, val_dataloader):
 
     :return model: trained model.
     """
-    model = ST_GAT(in_channels=Config.PARAMS.N_HIST, out_channels=Config.PARAMS.N_PRED,
-                   n_nodes=Config.PARAMS.N_NODES, dropout=Config.PARAMS.DROPOUT)
+    model = ST_GAT(in_channels=Config.PARAMS.HYPER['N_HIST'], out_channels=Config.PARAMS.HYPER['N_PRED'],
+                   n_nodes=Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES'], 
+                   dropout=Config.PARAMS.HYPER['DROPOUT'])
     
-    optim_fn = optim.Adam(model.parameters(), lr=Config.PARAMS.LEARNING_RATE, 
-                           weight_decay=Config.PARAMS.WEIGHT_DECAY)
+    optim_fn = optim.Adam(model.parameters(), lr=Config.PARAMS.HYPER['LEARNING_RATE'], 
+                           weight_decay=Config.PARAMS.HYPER['WEIGHT_DECAY'])
     
     loss_fn = torch.nn.MSELoss
 
-    model.to(Config.PARAMS.DEVICE)
+    model.to(Config.PARAMS.CUDA['DEVICE'])
 
     # train model for each epoch
-    for epoch in range(Config.PARAMS.TOTAL_EPOCHS):
+    for epoch in range(Config.PARAMS.HYPER['TOTAL_EPOCHS']):
         loss = train(model, train_dataloader, optim_fn, loss_fn, epoch)
         Log.info(f'loss: {loss:.3f}')
 
@@ -146,7 +147,7 @@ def model_train(train_dataloader, val_dataloader):
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optim_fn.state_dict(),
         "loss": loss,
-    }, os.path.join(Config.PARAMS.CHECKPOINT, f'model_{time_str}'))
+    }, os.path.join(Config.PARAMS.DIR['CHECKPOINTS'], f'model_{time_str}'))
 
     return model
 
