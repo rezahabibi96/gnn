@@ -3,15 +3,18 @@ from colorlog import ColoredFormatter
 
 
 LOG_LEVEL = logging.DEBUG
-LOG_FORMAT = "%(log_color)s%(levelname)s%(reset)s:     %(log_color)4s%(message)s%(reset)s"
+
+# LOG_FORMAT = "%(log_color)s%(levelname)s%(reset)s:     %(log_color)4s%(message)s%(reset)s"
+LOG_FORMAT = "%(log_color)s%(asctime)s%(reset)s:    %(log_color)4s[%(levelname)s] %(message)s%(reset)s"
+
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(LOG_FORMAT)
+formatter = ColoredFormatter(LOG_FORMAT, datefmt=DATE_FORMAT)
 
 stream = logging.StreamHandler()
 stream.setLevel(LOG_LEVEL)
 stream.setFormatter(formatter)
-
 log = logging.getLogger('pythonConfig')
 log.setLevel(LOG_LEVEL)
 log.addHandler(stream)
@@ -38,5 +41,4 @@ class Log:
 
     @classmethod
     def critical(cls, message=None, e=None):
-
         cls.log.critical(message)
