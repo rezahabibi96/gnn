@@ -129,8 +129,5 @@ dmypy.json
 .pyre/
 .idea
 
-# checkpoints
-checkpoints/*
-
-# logs
-logs/*
+# .gitignore artifacts
+artifacts/*
