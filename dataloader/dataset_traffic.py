@@ -21,7 +21,7 @@ class TrafficDataset(InMemoryDataset):
         self.load(self.processed_paths[0])
         # PyG<2.4
         # self.data, self.slices = torch.load(self.processed_paths[0])
-        self.mean, self.std_dev, _, _ = torch.load(self.processed_paths[1])
+        self.mean, self.std, _, _ = torch.load(self.processed_paths[1])
     
     @property
     def raw_dir(self):
@@ -122,7 +122,7 @@ class TrafficDataset(InMemoryDataset):
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
-        nodes = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES']
-        names = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NAMES']
+        name = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['NAME']
+        n_nodes = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES']
         
-        torch.save((mean, std, nodes, names), self.processed_paths[1])
+        torch.save((mean, std, name, n_nodes), self.processed_paths[1])
