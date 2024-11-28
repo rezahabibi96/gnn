@@ -101,6 +101,9 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
     :param val_dataloader: data loader of val dataset.
     :param optim_fn: optim function.
     :param loss_fn: loss function.
+
+    :return model: trained model.
+    :return loss: current loss.
     """
     model.to(Config.PARAMS.CUDA['DEVICE'])
 
@@ -129,6 +132,8 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
 
     Tb.flush()
 
+    return model, loss
+
 
 def model_eval(model, test_dataloader):
     """
@@ -136,6 +141,8 @@ def model_eval(model, test_dataloader):
 
     :param model: given model.
     :param test_dataloader: data loader of test dataset.
+
+    :return: eval metrics (rmse, mae, mape) & data tensors (y_preds, y_truths).
     """
     test_rmse, test_mae, test_mape, y_preds, y_truths = eval(model, test_dataloader)
     Log.info(f'(test) RMSE: {test_rmse:.4f}, MAE: {test_mae:.4f}, MAPE: {test_mape:.4f}')
@@ -145,6 +152,8 @@ def model_eval(model, test_dataloader):
     Tb.add_scalar(f"MAPE/test", test_mape, 0)
 
     Tb.flush()
+
+    return test_rmse, test_mae, test_mape, y_preds, y_truths
 
 
 def model_predict():
