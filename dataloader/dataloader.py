@@ -16,8 +16,8 @@ def split_data(data, ratio):
     """
     r_train, r_val, _ = ratio
 
-    n_train = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_SLOTS'] * r_train
-    n_val = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_SLOTS'] * r_val
+    n_train = Config.PARAMS.DATA[Config.PARAMS.ACTIVE['DATA']]['N_SLOTS'] * r_train
+    n_val = Config.PARAMS.DATA[Config.PARAMS.ACTIVE['DATA']]['N_SLOTS'] * r_val
 
     train = data[:n_train]
     val = data[n_train : n_train + n_val]

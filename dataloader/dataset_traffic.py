@@ -16,7 +16,7 @@ class TrafficDataset(InMemoryDataset):
     """
     def __init__(self, root='', transform=None, pre_transform=None, pre_filter=None):
         self.supported = ['PEMSD7',]
-        self.ACTIVE_DATA = Config.PARAMS.ACTIVE_DATA
+        self.ACTIVE_DATA = Config.PARAMS.ACTIVE['DATA']
         super().__init__(root, transform, pre_transform, pre_filter)
         self.load(self.processed_paths[0])
         # PyG<2.4
@@ -122,7 +122,7 @@ class TrafficDataset(InMemoryDataset):
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
-        name = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['NAME']
-        n_nodes = Config.PARAMS.DATA[Config.PARAMS.ACTIVE_DATA]['N_NODES']
+        name = Config.PARAMS.DATA[self.ACTIVE_DATA]['NAME']
+        n_nodes = Config.PARAMS.DATA[self.ACTIVE_DATA]['N_NODES']
         
         torch.save((mean, std, name, n_nodes), self.processed_paths[1])
