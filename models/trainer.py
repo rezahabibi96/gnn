@@ -5,12 +5,9 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from helpers import Config
 from helpers import Log
+from helpers import Tb
 from models.tools import save_checkpoint
 from utils.math import *
-
-
-# init a tensorboard writer
-writer = SummaryWriter(log_dir=Config.PARAMS.DIR['TENSORBOARD'])
 
 
 def train(model, dataloader, optim_fn, loss_fn, epoch):
@@ -112,7 +109,7 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
     # train model for each epoch
     for epoch in range(Config.PARAMS.HYPER['TOTAL_EPOCHS']):
         loss = train(model, train_dataloader, optim_fn, loss_fn, epoch)
-        writer.add_scalar("LOSS/train", loss, epoch)
+        Tb.add_scalar("LOSS/train", loss, epoch)
 
         if epoch % 10 == 0:
             Log.info(f'EPOCH: {epoch}')
@@ -124,15 +121,15 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
             val_rmse, val_mae, val_mape, _, _ = eval(model, val_dataloader)
             Log.info(f'(val) RMSE: {val_rmse:.4f}, MAE: {val_mae:.4f}, MAPE: {val_mape:.4f}')
 
-            writer.add_scalar(f"RMSE/train", train_rmse, epoch)
-            writer.add_scalar(f"MAE/train", train_mae, epoch)
-            writer.add_scalar(f"MAPE/train", train_mape, epoch)
+            Tb.add_scalar(f"RMSE/train", train_rmse, epoch)
+            Tb.add_scalar(f"MAE/train", train_mae, epoch)
+            Tb.add_scalar(f"MAPE/train", train_mape, epoch)
             
-            writer.add_scalar(f"RMSE/val", val_rmse, epoch)
-            writer.add_scalar(f"MAE/val", val_mae, epoch)
-            writer.add_scalar(f"MAPE/val", val_mape, epoch)
+            Tb.add_scalar(f"RMSE/val", val_rmse, epoch)
+            Tb.add_scalar(f"MAE/val", val_mae, epoch)
+            Tb.add_scalar(f"MAPE/val", val_mape, epoch)
 
-    writer.flush()
+    Tb.flush()
     save_checkpoint(epoch, model, optim_fn, loss)
 
 
@@ -146,9 +143,11 @@ def model_eval(model, test_dataloader):
     test_rmse, test_mae, test_mape, y_preds, y_truths = eval(model, test_dataloader)
     Log.info(f'(test) RMSE: {test_rmse:.4f}, MAE: {test_mae:.4f}, MAPE: {test_mape:.4f}')
 
-    writer.add_scalar(f"RMSE/test", test_rmse, 0)
-    writer.add_scalar(f"MAE/test", test_mae, 0)
-    writer.add_scalar(f"MAPE/test", test_mape, 0)
+    Tb.add_scalar(f"RMSE/test", test_rmse, 0)
+    Tb.add_scalar(f"MAE/test", test_mae, 0)
+    Tb.add_scalar(f"MAPE/test", test_mape, 0)
+
+    Tb.flush()
 
 
 def model_predict():
