@@ -25,16 +25,16 @@ class TrafficDataset(InMemoryDataset):
     
     @property
     def raw_dir(self):
-        return Config.PARAMS.DATA['PEMSD7']['RAW_DIR']
+        return Config.PARAMS.DATA[self.source]['RAW_DIR']
 
     @property
     def raw_file_names(self):
-        return [os.path.join(self.raw_dir, Config.PARAMS.DATA['PEMSD7']['W']),
-                os.path.join(self.raw_dir, Config.PARAMS.DATA['PEMSD7']['V'])]
+        return [os.path.join(self.raw_dir, Config.PARAMS.DATA[self.source]['W']),
+                os.path.join(self.raw_dir, Config.PARAMS.DATA[self.source]['V'])]
     
     @property
     def processed_dir(self):
-        return Config.PARAMS.DATA['PEMSD7']['PROCESSED_DIR']
+        return Config.PARAMS.DATA[self.source]['PROCESSED_DIR']
 
     @property
     def processed_file_names(self):
@@ -92,8 +92,8 @@ class TrafficDataset(InMemoryDataset):
         window = Config.PARAMS.HYPER['N_HIST'] + Config.PARAMS.HYPER['N_PRED']
 
         # construct graph for each window
-        for i in range(Config.PARAMS.DATA['PEMSD7']['N_DAYS']):
-            for j in range(Config.PARAMS.DATA['PEMSD7']['N_SLOTS']):
+        for i in range(Config.PARAMS.DATA[self.source]['N_DAYS']):
+            for j in range(Config.PARAMS.DATA[self.source]['N_SLOTS']):
 
                 g = Data()
                 g.num_nodes = n_nodes
@@ -101,7 +101,7 @@ class TrafficDataset(InMemoryDataset):
                 g.edge_index = edge_index
                 g.edge_attr = edge_attr
 
-                start = i * Config.PARAMS.DATA['PEMSD7']['N_INTERVALS'] + j
+                start = i * Config.PARAMS.DATA[self.source]['N_INTERVALS'] + j
                 end = start + window
 
                 # switch from [F, N] (21, 228) -> [N, F] (228, 21)
@@ -122,7 +122,7 @@ class TrafficDataset(InMemoryDataset):
         # torch.save((data, slices), self.processed_paths[0])
         # https://pytorch-geometric.readthedocs.io/en/stable/tutorial/create_dataset.html
 
-        name = Config.PARAMS.DATA['PEMSD7']['NAME']
-        n_nodes = Config.PARAMS.DATA['PEMSD7']['N_NODES']
+        name = Config.PARAMS.DATA[self.source]['NAME']
+        n_nodes = Config.PARAMS.DATA[self.source]['N_NODES']
         
         torch.save((mean, std, name, n_nodes), self.processed_paths[1])
