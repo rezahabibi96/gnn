@@ -55,10 +55,10 @@ class ST_GAT(torch.nn.Module):
 
         # LSTM layers
         batch_size = data.num_graphs
-        n_nodes = int(data.num_nodes / batch_size)
+        num_nodes = int(data.num_nodes / batch_size)
 
         # [batch_size * n_nodes, seq_len]-> [batch_size, n_nodes, seq_len] 
-        x = torch.reshape(x, (batch_size, n_nodes, data.num_features))
+        x = torch.reshape(x, (batch_size, num_nodes, data.num_features))
 
         # for lstm -> (seq_len, batch_size, n_nodes)
         x = torch.movedim(x, 2, 0)
