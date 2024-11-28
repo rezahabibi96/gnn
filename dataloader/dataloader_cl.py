@@ -60,8 +60,8 @@ def get_ctxs(data):
 
         ctx = {
             'id': id,
-            'train_dataloader': train,
-            'test_dataloader': test
+            'train': train,
+            'test': test
         }
 
         ctxs.append(ctx)
