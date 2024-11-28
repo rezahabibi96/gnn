@@ -58,6 +58,8 @@ class Config:
                                help="select environtment (e.g., development, production)")
         active_group.add_argument('--ACTIVE.DATA', '-ad', type=str, default=cls.PARAMS.ACTIVE['DATA'],
                                help="select data (e.g., PEMSD7, PEMSD8)")
+        active_group.add_argument('--ACTIVE.LEARNING', '-al', type=str, default=cls.PARAMS.ACTIVE['LEARNING'],
+                               help="select learning (e.g., CL, SL)")
 
         active_args = active_group.parser.parse_args()
         for field, value in vars(active_args['ACTIVE']).items():
