@@ -130,7 +130,6 @@ def model_train(model, train_dataloader, val_dataloader, optim_fn, loss_fn):
             Tb.add_scalar(f"MAPE/val", val_mape, epoch)
 
     Tb.flush()
-    save_checkpoint(epoch, model, optim_fn, loss)
 
 
 def model_eval(model, test_dataloader):
