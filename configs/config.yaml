@@ -1,9 +1,12 @@
 APP: 
- TITLE: "catastrophic forgetting experience in GNN"
+ TITLE: "CFP in GNN"
  VERSION: "1.0.0"
 
-ACTIVE_ENVIRONTMENT: "development"
+ACTIVE:
+ ENVIRONTMENT: "development"
+ DATA: "PEMSD7"
 
+ACTIVE_ENVIRONTMENT: "development"
 ACTIVE_DATA: "PEMSD7"
 
 CUDA:
@@ -15,11 +18,30 @@ DATA:
   N_DAYS: 44
   N_INTERVALS: 288
   N_SLOTS: null
-  N_NAMES: PEMSD7
-  RAW_DIR: './data/PEMSD7'
-  PROCESSED_DIR: './artifacts/processed/PEMSD7'
-  V: 'PeMSD7_V_228.csv'
-  W: 'PeMSD7_W_228.csv'
+  NAME: "PEMSD7"
+  RAW_DIR: "./data/PEMSD7"
+  PROCESSED_DIR: "./artifacts/processed/PEMSD7"
+  V: "PeMSD7_V_228.csv"
+  W: "PeMSD7_W_228.csv"
+  CONTEXT:
+   NAME: "CONTINUAL LEARNING"
+   TOTAL: 3
+   DETAIL:
+    - ID: 1
+      TRAIN_START: 1
+      TRAIN_END: 12
+      TEST_START: 13
+      TEST_END: 14
+    - ID: 2
+      TRAIN_START: 17
+      TRAIN_END: 28
+      TEST_START: 29
+      TEST_END: 30
+    - ID: 3
+      TRAIN_START: 32
+      TRAIN_END: 42
+      TEST_START: 43
+      TEST_END: 44
 
 DIR:
  ARTIFACTS: "./artifacts"
@@ -28,14 +50,16 @@ DIR:
  PROCESSED: "./artifacts/processed"
  TENSORBOARD: "./artifacts/tensorboard"
 
+HYPER:
+ BATCH_SIZE: 50
+ TOTAL_EPOCHS: 60
+ LEARNING_RATE: 0.0003
+ DROPOUT: 0.2
+ WEIGHT_DECAY: 0.00005
+ GAT_MODE: False
+ N_HIST: 9
+ N_PRED: 12
+
 MODEL:
- HYPER:
-  BATCH_SIZE: 50
-  TOTAL_EPOCHS: 200
-  LEARNING_RATE: 0.0003
-  DROPOUT: 0.2
-  WEIGHT_DECAY: 0.00005
-  N_HIST: 9
-  N_PRED: 12
  ST_GAT:
-  IS_GAT: True
+  NAME: "ST_GAT"
