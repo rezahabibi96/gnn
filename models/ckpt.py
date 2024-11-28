@@ -1,26 +1,38 @@
 import os
-import time
 import torch
+from pathlib import Path
 
 from helpers import Config
 from helpers import Log
 
 
-def save_checkpoint(model, optim_fn, loss, file_name):
+def save_checkpoint(model, optim_fn, loss, time_strf, file_name, data_name):
     """
     save model given checkpoint.
 
-    :param epocj: epoch value.
     :param model: trained model.
     :param optim_fn: optim function.
-    :param loss: loss value. 
+    :param loss: loss value.
+    :param time_strf: time stringf.
+    :param file_name: file name.
+    :param data_name: data name.
     """
+    model_path = os.path.join(Config.PARAMS.DIR['CHECKPOINTS'], time_strf) 
+    Path(model_path).mkdir(parents=True, exist_ok=True)
+
+    detail = {
+        "model": model.__class__.__name__,
+        "time_strf": time_strf,
+        "data": data_name,
+        "loss": loss,
+        "hyper": Config.PARAMS.HYPER
+    }
+
     torch.save({
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optim_fn.state_dict(),
-        "loss": loss,
-        "hyper": Config.PARAMS.HYPER
-    }, os.path.join(Config.PARAMS.DIR['CHECKPOINTS'], file_name))
+        "detail": detail
+    }, os.path.join(model_path, f'{file_name}.pt'))
 
 
 def load_checkpoint(model, path):
