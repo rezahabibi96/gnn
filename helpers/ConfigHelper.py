@@ -13,7 +13,7 @@ class ConfigModel(BaseModel):
     DATA: dict = {}
     DIR: dict = {}
     HYPER: dict = {}
-    ST_GAT: dict = {}
+    MODEL: dict = {}
     
 
 class Config:
