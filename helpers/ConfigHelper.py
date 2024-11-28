@@ -40,6 +40,7 @@ class Config:
             MODEL=cls.__config_yaml__['MODEL'],
         )
 
+        # should be run for every available data
         cls.PARAMS.DATA[cls.PARAMS.ACTIVE['DATA']]['N_SLOTS'] = ( cls.PARAMS.DATA[cls.PARAMS.ACTIVE['DATA']]['N_INTERVALS'] - 
                                                                   (cls.PARAMS.HYPER['N_HIST'] + cls.PARAMS.HYPER['N_PRED']) 
                                                                   + 1 )
