@@ -1,7 +1,6 @@
 import numpy as np
 
-from helpers import Config
-from helpers import Log
+from helpers import Config, Log
 
 
 def split_data(data, ratio):

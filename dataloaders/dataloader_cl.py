@@ -1,5 +1,4 @@
-from helpers import Config
-from helpers import Log
+from helpers import Config, Log
 
 
 def get_joint(data):
