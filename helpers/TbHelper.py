@@ -5,7 +5,7 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from helpers import Config
 
 
-summary_writer = SummaryWriter(log_dir=os.path.join(Config.PARAMS.DIR['TENSORBOARD'], '/temp'))
+summary_writer = SummaryWriter(log_dir=os.path.join(Config.PARAMS.DIR['TENSORBOARD'], 'temp'))
 
 
 class Tb:
