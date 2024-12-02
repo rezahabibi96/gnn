@@ -1,1 +1,1 @@
-from .trainer import train, test, model_train, model_eval
+from .trainer import train, eval, model_train, model_eval
