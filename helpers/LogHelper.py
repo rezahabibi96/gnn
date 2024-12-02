@@ -5,6 +5,7 @@ from colorlog import ColoredFormatter
 LOG_LEVEL = logging.DEBUG
 logging.root.setLevel(LOG_LEVEL)
 
+LOG_FORMAT = ""
 LOG_FORMAT = "%(log_color)s%(asctime)s%(reset)s:    %(log_color)4s[%(levelname)s] %(message)s%(reset)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 formatter = ColoredFormatter(LOG_FORMAT, datefmt=DATE_FORMAT)
