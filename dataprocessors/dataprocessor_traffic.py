@@ -4,9 +4,8 @@ import numpy as np
 import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 
-from helpers import Config
-from helpers import Log
-from utils.math import *
+from helpers import Config, Log
+from utils import *
 
 
 def from_dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat_mode=False):
