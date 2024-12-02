@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 from torch.utils.tensorboard.writer import SummaryWriter
 
-from helpers import Config
-from helpers import Log
+from helpers import Config, Log
 
 
 summary_writer = SummaryWriter(log_dir=os.path.join(Config.PARAMS.DIR['TENSORBOARD'], '/temp'))
