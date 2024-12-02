@@ -6,9 +6,7 @@ ACTIVE:
  ENVIRONTMENT: "development"
  DATA: "PEMSD7"
  LEARNING: "CL"
-
-ACTIVE_ENVIRONTMENT: "development"
-ACTIVE_DATA: "PEMSD7"
+ MODEL: "ST_GAT"
 
 CUDA:
  DEVICE: "cuda"
