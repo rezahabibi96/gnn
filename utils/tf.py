@@ -37,6 +37,18 @@ def from_tfevent_to_pandas(path):
     return data
 
 
+def from_many_tfevent_to_pandas(path):
+    """
+    convert many tfevent log to pandas df.
+    https://stackoverflow.com/questions/71239557/export-tensorboard-with-pytorch-data-into-csv-with-python.
+
+    :param path: given path (tensorboard logs).
+
+    :return df: pandas df.
+    """
+    pass
+
+
 if __name__ == "__main__":
     # python3 -m utils.tf
     from_tfevent_to_pandas('./artifacts/tensorboard').to_csv('csv.csv')
