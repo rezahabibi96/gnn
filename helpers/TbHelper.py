@@ -6,7 +6,7 @@ from helpers import Config
 from helpers import Log
 
 
-summary_writer = SummaryWriter(log_dir=Config.PARAMS.DIR['TENSORBOARD'])
+summary_writer = SummaryWriter(log_dir=os.path.join(Config.PARAMS.DIR['TENSORBOARD'], '/temp'))
 
 
 class Tb:
