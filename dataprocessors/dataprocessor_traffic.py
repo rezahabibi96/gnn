@@ -5,7 +5,7 @@ import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 
 from helpers import Config
-from utils import *
+from utils import norm_z
 
 
 def from_dist_to_weight(D, sigma2=0.1, epsilon=0.5, gat_mode=False):
