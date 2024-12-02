@@ -1,6 +1,4 @@
-import numpy as np
-
-from helpers import Config, Log
+from helpers import Config
 
 
 def split_data(data, ratio):

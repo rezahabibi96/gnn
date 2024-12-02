@@ -2,9 +2,6 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv
 
-from helpers import Config
-from helpers import Log
-
 
 class ST_GAT(torch.nn.Module):
     """

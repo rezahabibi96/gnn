@@ -3,7 +3,6 @@ import torch
 from pathlib import Path
 
 from helpers import Config
-from helpers import Log
 
 
 def save_checkpoint(model, optim_fn, loss, time_strf, file_name, data_name):

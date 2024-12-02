@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from torch_geometric.data import InMemoryDataset, Data
 
-from helpers import Config, Log
+from helpers import Config
 from utils import *
 
 
