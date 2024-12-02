@@ -8,7 +8,7 @@ def create_dataset():
 
     :return dataset: created dataset.
     """
-    if Config.PARAMS['ACTIVE']['DATA'] == 'PEMSD7':
+    if Config.PARAMS.ACTIVE['DATA'] == 'PEMSD7':
         dataset = TrafficDataset()
 
     return dataset
