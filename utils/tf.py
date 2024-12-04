@@ -1,3 +1,4 @@
+import os
 import glob
 import traceback
 import pandas as pd
@@ -13,6 +14,7 @@ def from_tfevent_to_pandas(path):
 
     :return df: pandas df.
     """
+    path = os.path.join('./artifacts/tensorboard', f'{path}/*')
     data = pd.DataFrame({"metric": [], "value": [], "step": [], "name": [], "wall_time": []})
 
     for file in glob.glob(path):
@@ -42,4 +44,4 @@ def from_tfevent_to_pandas(path):
 
 if __name__ == "__main__":
     # python3 -m utils.tf
-    from_tfevent_to_pandas('./artifacts/tensorboard/2024-12-02 17:01:41/*').to_csv('csv.csv')
+    from_tfevent_to_pandas('2024-12-02 17:01:41').to_csv('csv.csv')
