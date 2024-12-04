@@ -50,7 +50,6 @@ def run_cl(time_strf):
     ctx_optim_fn = optim.Adam(ctx_model.parameters(), lr=Config.PARAMS.HYPER['LEARNING_RATE'], 
                               weight_decay=Config.PARAMS.HYPER['WEIGHT_DECAY'])
 
-    Config.PARAMS.ACTIVE['EPOCH'] = 12
 
     # train the naive model per context
     for i, ctx in enumerate(ctxs):
