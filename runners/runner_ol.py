@@ -3,7 +3,7 @@ import torch.optim as optim
 from torch_geometric.loader import DataLoader
 
 from helpers import Config, Log, Tb
-from factories import create_dataset, create_model
+from factories import create_dataset, create_model, create_ctxs
 from dataloaders import get_ctxs, get_joint
 from trainers import model_train, model_eval, save_checkpoint
 
@@ -15,6 +15,7 @@ def run_ol(time_strf):
 
     # get the contexts object (consist of training and testing dataset per streaming)
     ctxs = get_ctxs(dataset)
+    ctxs = create_ctxs(dataset, 1, 1, 2)
 
     # get the join object (consist of whole combined training dataset from streamings)
     joint = get_joint(dataset)
