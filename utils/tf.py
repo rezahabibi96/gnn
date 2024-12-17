@@ -2,6 +2,7 @@ import os
 import glob
 import traceback
 import pandas as pd
+from pathlib import Path
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 
@@ -14,10 +15,15 @@ def from_tfevent_to_pandas(path):
 
     :return df: pandas df.
     """
-    path = os.path.join('./artifacts/tensorboard', f'{path}/*')
+    path_tfevent = os.path.join('./artifacts/tensorboard', f'{path}/*')
+    path_pandas = os.path.join('./artifacts/metrics', f'{path}')
+
+    Path(path_tfevent).mkdir(parents=True, exist_ok=True)
+    Path(path_pandas).mkdir(parents=True, exist_ok=True)
+
     data = pd.DataFrame({"metric": [], "value": [], "step": [], "name": [], "wall_time": []})
 
-    for file in glob.glob(path):
+    for file in glob.glob(path_tfevent):
         try:
             event_accumulator = EventAccumulator(file, size_guidance={"scalars": 0})
             event_accumulator.Reload()
@@ -38,10 +44,12 @@ def from_tfevent_to_pandas(path):
         except Exception:
             print("event file possibly corrupt: {}".format(file))
             traceback.print_exc()
-    
+
+    data.to_csv(f'{path_pandas}/csv.csv')
     return data
 
 
 if __name__ == "__main__":
     # python3 -m utils.tf
-    from_tfevent_to_pandas('2024-12-02 17:01:41').to_csv('csv.csv')
+    path = '2024-12-04 14:31:28'
+    from_tfevent_to_pandas(path)
