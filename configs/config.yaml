@@ -5,7 +5,7 @@ APP:
 ACTIVE:
  ENVIRONTMENT: "development"
  DATA: "PEMSD7"
- LEARNING: "CL"
+ LEARNING: "SL"
  MODEL: "ST_GAT"
 
 CUDA:
@@ -23,6 +23,35 @@ DATA:
   V: "PeMSD7_V_228.csv"
   W: "PeMSD7_W_228.csv"
   CONTEXT:
+   NAME: "CONTINUAL LEARNING"
+   TOTAL: 4
+   DETAIL:
+    - ID: 1
+      TRAIN_START: 1
+      TRAIN_END: 5
+      TEST_START: 6
+      TEST_END: 7
+    - ID: 2
+      TRAIN_START: 10
+      TRAIN_END: 14
+      TEST_START: 15
+      TEST_END: 16
+    - ID: 3
+      TRAIN_START: 19
+      TRAIN_END: 23
+      TEST_START: 24
+      TEST_END: 25
+    - ID: 4
+      TRAIN_START: 28
+      TRAIN_END: 32
+      TEST_START: 33
+      TEST_END: 34
+    - ID: 5
+      TRAIN_START: 37
+      TRAIN_END: 41
+      TEST_START: 42
+      TEST_END: 43
+  CONTEXT1:
    NAME: "CONTINUAL LEARNING"
    TOTAL: 3
    DETAIL:
@@ -46,6 +75,7 @@ DIR:
  ARTIFACTS: "./artifacts"
  CHECKPOINTS: "./artifacts/checkpoints" 
  LOGS: "./artifacts/logs"
+ METRICS: "./artifacts/metrics"
  PROCESSED: "./artifacts/processed"
  TENSORBOARD: "./artifacts/tensorboard"
 
